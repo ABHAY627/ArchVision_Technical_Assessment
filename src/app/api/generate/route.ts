@@ -9,6 +9,7 @@ import {
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
 const ERROR_MESSAGES: Record<string, string> = {
   timeout: 'Generation timed out. The AI service is busy — please try again.',
