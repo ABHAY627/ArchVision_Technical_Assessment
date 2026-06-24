@@ -9,6 +9,11 @@ const nextConfig = {
       },
     ],
   },
+  eslint: {
+    // Exclude auto-generated Prisma client from ESLint during builds
+    ignoreDuringBuilds: false,
+    dirs: ['src/app', 'src/components', 'src/lib', 'src/types'],
+  },
 };
 
 module.exports = nextConfig;
