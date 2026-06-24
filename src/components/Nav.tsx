@@ -10,10 +10,10 @@ export default function Nav() {
   ];
 
   return (
-    <nav className="border-b border-border bg-cream">
+    <nav className="border-b border-border/60 bg-cream/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-serif text-xl font-semibold tracking-tight">
-          Arch<span className="text-terracotta">Vision</span>
+        <Link href="/" className="font-serif text-[22px] font-medium tracking-tight text-charcoal">
+          Arch<span className="text-terracotta italic ml-0.5">Vision</span>
         </Link>
         <div className="flex gap-8">
           {links.map(({ href, label }) => (

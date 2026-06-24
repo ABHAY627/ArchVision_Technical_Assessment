@@ -66,16 +66,18 @@ function GeneratorContent() {
       </p>
 
       <div className="space-y-6">
-        <div>
+        <div className="relative group">
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Describe your architectural concept..."
             maxLength={500}
             rows={4}
-            className="w-full border border-border bg-white px-4 py-3 text-sm font-light placeholder-muted focus:outline-none focus:border-charcoal resize-none transition-colors"
+            className="w-full border border-border/80 bg-white px-5 py-4 text-[15px] font-sans placeholder-muted focus:outline-none focus:border-terracotta/60 focus:ring-4 focus:ring-terracotta/10 rounded-2xl resize-none transition-all duration-200 shadow-sm group-hover:border-border"
           />
-          <p className="text-xs text-muted mt-1 text-right">{prompt.length}/500</p>
+          <div className="absolute bottom-4 right-4 flex items-center justify-end">
+            <span className="text-xs text-muted font-medium bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md">{prompt.length}/500</span>
+          </div>
         </div>
 
         <StyleSelector selected={styles} onChange={setStyles} />

@@ -32,10 +32,10 @@ export default function StyleSelector({ selected, onChange }: Props) {
           <button
             key={style}
             onClick={() => toggle(style)}
-            className={`px-4 py-1.5 text-sm border transition-colors duration-150 ${
+            className={`px-4 py-1.5 text-[13px] font-medium rounded-full border transition-all duration-200 ${
               selected.includes(style)
-                ? 'border-terracotta bg-terracotta text-white'
-                : 'border-border text-muted hover:border-charcoal hover:text-charcoal'
+                ? 'border-terracotta bg-terracotta text-white shadow-sm shadow-terracotta/20 scale-[1.02]'
+                : 'border-border/80 bg-white text-muted hover:border-charcoal/30 hover:text-charcoal hover:bg-gray-50'
             }`}
           >
             {style}
