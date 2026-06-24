@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ArchVision — AI Architectural Concept Generator
 
-## Getting Started
+Generate professional architectural concept art from text descriptions. Describe a building, space,
+or structural vision and receive an AI-rendered image — saved to your personal gallery.
 
-First, run the development server:
+**Stack:** Next.js 14 · TypeScript · Tailwind CSS · Prisma · PostgreSQL · Pollinations.ai / Gemini
+
+---
+
+## Prerequisites
+
+- Node.js 18+
+- PostgreSQL (local, or free cloud: [Neon](https://neon.tech) / [Supabase](https://supabase.com))
+
+---
+
+## Setup
+
+```bash
+git clone <repo-url>
+cd archvision
+npm install
+```
+
+---
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string |
+| `AI_PROVIDER` | ✅ | `pollinations` (free, default) or `gemini` |
+| `GEMINI_API_KEY` | Only if `AI_PROVIDER=gemini` | Gemini API key from Google AI Studio |
+
+---
+
+## Database
+
+```bash
+npx prisma migrate dev --name init
+```
+
+---
+
+## Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Switching AI Provider
 
-## Learn More
+In `.env.local`:
+```
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_key_here
+```
 
-To learn more about Next.js, take a look at the following resources:
+Restart the dev server. Both providers produce equivalent output; Pollinations is free and
+requires no key.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment (Vercel)
 
-## Deploy on Vercel
+1. Push to GitHub
+2. Import project on Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> ⚠️ Note: `/public/generated/` is ephemeral on Vercel. Images are lost on redeploy.
+> For production persistence, replace `saveImageToDisk` in `src/lib/imageApi.ts` with
+> a Cloudinary or S3 upload.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Known Limitations
+
+- **Image persistence**: Local filesystem only. Ephemeral on serverless platforms.
+- **No auth**: Gallery is session-scoped via cookie. Clearing cookies loses the gallery.
+- **No rate limiting**: The `/api/generate` route is unprotected. Add middleware for production.
+- **Pollinations SLA**: Free public API — generation time varies (10–30s typical).
