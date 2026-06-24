@@ -512,22 +512,6 @@ model Generation {
 
 <div align="center">
 
-## 📜 `ライセンス` — License
-
-</div>
-
-<br>
-
-This project was built as a **Technical Assessment** for **Actual Inc.** — Software Engineer role.
-
-<br>
-
----
-
-<br>
-
-<div align="center">
-
 <br>
 
 ```
