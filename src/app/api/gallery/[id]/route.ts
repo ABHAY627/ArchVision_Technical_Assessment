@@ -9,13 +9,15 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { id } = params;
+
   const sessionId = req.cookies.get('archvision_session')?.value;
   if (!sessionId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const generation = await prisma.generation.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!generation || generation.sessionId !== sessionId) {
@@ -23,11 +25,7 @@ export async function DELETE(
   }
 
   await deleteImageFromDisk(generation.imagePath);
-  await prisma.generation.delete({ where: { id: params.id } });
+  await prisma.generation.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
-}
-
-export async function generateStaticParams() {
-  return [];
 }
