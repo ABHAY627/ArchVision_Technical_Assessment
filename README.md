@@ -10,7 +10,7 @@
 ⛩️
 ```
 
-<img src="https://readme-typing-svg.demolab.com?font=Playfair+Display&weight=700&size=42&pause=1000&color=C4785B&center=true&vCenter=true&random=false&width=550&height=70&lines=Arch+Vision" alt="ArchVision" />
+<h1>ArchVision</h1>
 
 <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=300&size=16&pause=2000&color=6B6B6B&center=true&vCenter=true&random=false&width=500&height=30&lines=%E5%BB%BA%E7%AF%89%E3%81%AE%E3%83%93%E3%82%B8%E3%83%A7%E3%83%B3+%E2%80%94+AI+Architectural+Concept+Generator" alt="Tagline" />
 
@@ -32,7 +32,7 @@
 </p>
 
 <p>
-  <a href="YOUR_LIVE_URL_HERE"><strong>🌸 View Live Demo →</strong></a>
+  <a href="https://arch-vision-technical-assessment.vercel.app/"><strong>🌸 View Live Demo →</strong></a>
 </p>
 
 <br>
@@ -165,8 +165,8 @@ The journey of a single prompt — from your mind to a rendered concept:
                               │
                               ▼
                     ┌─────────────────────┐
-                    │  💾 Save to Disk    │
-                    │  /public/generated/  │
+                    │  💾 Vercel Blob     │
+                    │  CDN Storage         │
                     │  {uuid}.png          │
                     └────────┬────────────┘
                              │
@@ -297,6 +297,12 @@ Now open `.env.local` and fill in your values:
 # 💡 Get a free hosted DB from https://neon.tech or https://supabase.com
 # Format: postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require
 DATABASE_URL=postgresql://username:password@host:5432/archvision?sslmode=require
+
+# ──────────────────────────────────────────────
+# 🗂️ Vercel Blob — Persistent image storage
+# ──────────────────────────────────────────────
+# Get from: Vercel Dashboard → Storage → Blob → your store → .env.local tab
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
 
 # ──────────────────────────────────────────────
 # 🤖 AI Provider — Choose your image generation engine
@@ -445,18 +451,14 @@ model Generation {
 ```
 1.  Push your code to GitHub
 2.  Import the project on Vercel (vercel.com/import)
-3.  Add environment variables in the Vercel dashboard:
+3.  Create a Vercel Blob store (Storage → Blob) and connect it to your project
+4.  Add environment variables in the Vercel dashboard:
       → DATABASE_URL
+      → BLOB_READ_WRITE_TOKEN  (auto-added when Blob store is connected)
       → AI_PROVIDER
       → GEMINI_API_KEY (if using Gemini)
-4.  Deploy 🚀
+5.  Deploy 🚀
 ```
-
-> ⚠️ **Important Note on Image Persistence:**
-> 
-> Vercel uses an **ephemeral filesystem** — images saved to `/public/generated/` are lost on every new deployment. The database records will still exist, but image URLs will break.
-> 
-> **For production**, replace the `saveImageToDisk` function in `src/lib/imageApi.ts` with a cloud storage solution like **AWS S3**, **Cloudinary**, or **Vercel Blob**.
 
 <br>
 
@@ -479,6 +481,7 @@ model Generation {
 | **Styling** | Tailwind CSS | Rapid iteration with a curated, warm design system |
 | **Database** | PostgreSQL (Neon) | Reliable, scalable, free hosted options available |
 | **ORM** | Prisma | Type-safe queries, auto-generated client, migrations |
+| **Image Storage** | Vercel Blob | Persistent CDN-backed storage — survives every redeploy |
 | **AI (Primary)** | Gemini 2.0 Flash | Google's fast image generation with high fidelity |
 | **AI (Fallback)** | Pollinations.ai | Free, no-key-needed public API for resilience |
 | **Session** | HTTP-only Cookie | Secure, anonymous session management (no auth needed) |
@@ -499,7 +502,6 @@ model Generation {
 
 | Limitation | Details | Production Fix |
 |:---|:---|:---|
-| 🗂️ **Image Storage** | Local filesystem only — ephemeral on serverless | Use S3 / Cloudinary / Vercel Blob |
 | 🔒 **No Authentication** | Gallery is cookie-scoped — clearing cookies loses gallery | Add OAuth / NextAuth.js |
 | 🚦 **No Rate Limiting** | `/api/generate` is unprotected | Add middleware (e.g., `next-rate-limit`) |
 | ⏱️ **Pollinations SLA** | Free public API — generation time varies (10–30s) | Use Gemini as primary provider |

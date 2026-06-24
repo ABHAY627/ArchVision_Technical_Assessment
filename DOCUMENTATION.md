@@ -20,8 +20,8 @@ How does a user’s prompt travel through the system?
    - **Fallback Mechanism**: If Gemini fails (e.g., due to free-tier rate limits or quota exhaustion), the system catches the error and seamlessly falls back to the **Pollinations.ai API**.
    - The API generates the image and returns a Buffer to the backend.
 5. **Storage & Database**:
-   - The backend saves the image Buffer to the local disk (`public/generated/`).
-   - A new record is created in the PostgreSQL database via Prisma, linking the `imagePath`, `prompt`, `styles`, and `sessionId`.
+   - The backend uploads the image Buffer to **Vercel Blob**, a persistent CDN-backed object store. The returned public URL is stored in the database rather than a local file path — this means images survive every redeploy and are served globally from the CDN edge.
+   - A new record is created in the PostgreSQL database via Prisma, linking the `imagePath` (Blob URL), `prompt`, `styles`, and `sessionId`.
 6. **Response**: The API returns the image path and database ID back to the frontend.
 7. **Display**: The frontend displays the newly generated image. The user can save it to their gallery or tweak the prompt and regenerate.
 
@@ -45,15 +45,17 @@ How does a user’s prompt travel through the system?
 - **Server-Side Generation**: The browser *never* talks to the AI API directly. All requests proxy through `/api/generate`, hiding the API keys and preventing abuse.
 - **Session-Based Gallery (No Login)**: To meet the requirement of the app being usable "without any explanation," I opted against a complex authentication flow. Instead, I assign a secure, long-lived HTTP-only cookie (`archvision_session`) to track anonymous users. This persists their gallery across page refreshes instantly.
 - **Graceful Degradation (API Fallback)**: Free AI APIs are notorious for rate-limiting and timeouts. Instead of just showing an error, I implemented a `try/catch` fallback strategy. If Gemini fails, it silently switches to Pollinations, dramatically improving the success rate of user requests.
-- **Local File System Storage**: For the scope of this assignment and a 15-minute setup time, images are saved directly to `public/generated/`. In a real-world production environment (e.g., deploying on Vercel), this would be swapped to an S3 bucket, as serverless platforms have ephemeral file systems.
+- **Persistent Image Storage via Vercel Blob**: Rather than saving images to the local filesystem (which is ephemeral on serverless platforms), all generated image buffers are uploaded to **Vercel Blob** immediately after generation. The database stores the returned public CDN URL as `imagePath`. This means images are permanent, globally distributed, and survive every redeploy. The `@vercel/blob` SDK's `put()` and `del()` calls are the only two touch points — kept in `src/lib/imageApi.ts` so the storage layer is easy to swap if needed.
 - **UI/UX Refinement**: I chose a muted, sophisticated aesthetic with clear "Regenerate" flows. When viewing an image in the Gallery, clicking "Refine & Regenerate" pushes the exact prompt back into the generator URL, instantly populating the text area for tweaking.
 
 ---
 
 ## 3. The Honest Part (What Still Doesn't Work Well)
 
-While the app handles API failures and concurrent users smoothly, **image persistence on serverless deployments (like Vercel) is fundamentally flawed with the current design.** 
+The app handles API failures, Vercel Blob storage, and concurrent users correctly. The honest limitation that remains is **session fragility**.
 
-Because the backend saves generated image buffers directly to the local disk (`public/generated`), these files are stored ephemerally. If the app is deployed to a serverless environment like Vercel, the filesystem is wiped on every new deployment or when the serverless function goes to sleep. This means the PostgreSQL database will successfully query the user's gallery records, but the image URLs will point to files that no longer exist, resulting in broken image links.
+The gallery is tied to a browser cookie (`archvision_session`). If a user clears their cookies, switches browsers, or opens the app on a different device, their gallery is inaccessible — the database records exist but there's no way to retrieve them without the original session ID. There's no account system, no recovery flow, and no way to share a gallery.
 
-**The Fix**: In a true production scenario, I would rip out the `fs.writeFileSync` logic and replace it with an AWS S3 or Cloudinary SDK integration, ensuring images are stored permanently on an external blob storage provider.
+This was a deliberate trade-off: no-login sessions meet the assignment's "usable without explanation" requirement perfectly, but they're not durable identity. A production version would layer in optional OAuth (e.g. Google sign-in) that retroactively claims the anonymous session's history.
+
+A second honest limitation: **no rate limiting on `/api/generate`**. A single user could fire off concurrent requests and exhaust the Gemini free-tier quota rapidly. In production this would need middleware-level throttling per session or IP.

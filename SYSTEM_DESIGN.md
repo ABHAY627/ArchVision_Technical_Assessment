@@ -14,12 +14,13 @@ Next.js App Router (Server)
         │
    ┌────┴──────────────┐
    │                   │
-API Routes          Static Files
-/api/generate       /public/generated/
-/api/gallery        (served by Next.js)
+API Routes          Static Assets
+/api/generate       (Next.js)
+/api/gallery
 /api/gallery/[id]
    │
    ├──► AI Provider (Pollinations.ai or Gemini Flash)
+   ├──► Vercel Blob (persistent CDN image storage)
    └──► PostgreSQL (via Prisma ORM)
 ```
 
@@ -85,8 +86,7 @@ Style descriptors are mapped from preset names to detailed descriptive strings.
 
 ## Known Limitations
 
-- Image storage uses the local filesystem (`/public/generated/`). On Vercel, this directory
-  is ephemeral — images are lost on redeploy. Production deployment should use Cloudinary or S3.
-- Gallery is session-based only. There is no user account system.
+- Gallery is session-based only. There is no user account system — clearing browser cookies loses access to the gallery.
 - Pollinations.ai is a free public API with no SLA — generation times vary (10–30s typical).
-- No rate limiting on `/api/generate` — a production deployment would need this.
+- No rate limiting on `/api/generate` — a production deployment would add middleware (e.g. `next-rate-limit`) to prevent abuse.
+- Gemini 2.0 Flash free tier has a daily quota. When exhausted, the system falls back to Pollinations automatically, but generation quality may differ slightly.
