@@ -27,3 +27,7 @@ export async function DELETE(
 
   return NextResponse.json({ success: true });
 }
+
+export async function generateStaticParams() {
+  return [];
+}
