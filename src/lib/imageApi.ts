@@ -1,5 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import { put, del } from '@vercel/blob';
 import { v4 as uuidv4 } from 'uuid';
 
 // ─── Style descriptor map ────────────────────────────────────────────────────
@@ -74,10 +73,10 @@ export async function generateWithGemini(finalPrompt: string): Promise<Buffer> {
       throw new Error('api_error');
     }
     const data = await res.json();
-    const parts = data?.candidates?.[0]?.content?.parts as Array<{ inlineData?: { mimeType?: string; data?: string } }> | undefined;
-    const part = parts?.find(
-      (p) => p.inlineData?.mimeType?.startsWith('image/')
-    );
+    const parts = data?.candidates?.[0]?.content?.parts as
+      | Array<{ inlineData?: { mimeType?: string; data?: string } }>
+      | undefined;
+    const part = parts?.find((p) => p.inlineData?.mimeType?.startsWith('image/'));
     if (!part?.inlineData?.data) throw new Error('api_error');
     return Buffer.from(part.inlineData.data, 'base64');
   } catch (err: unknown) {
@@ -88,16 +87,29 @@ export async function generateWithGemini(finalPrompt: string): Promise<Buffer> {
   }
 }
 
-// ─── File I/O ─────────────────────────────────────────────────────────────────
-export async function saveImageToDisk(buffer: Buffer): Promise<string> {
-  const dir = path.join(process.cwd(), 'public', 'generated');
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const filename = `${uuidv4()}.png`;
-  fs.writeFileSync(path.join(dir, filename), buffer);
-  return `/generated/${filename}`;
+// ─── Vercel Blob storage ──────────────────────────────────────────────────────
+
+/**
+ * Uploads an image buffer to Vercel Blob.
+ * Returns the public CDN URL which is stored in the DB as `imagePath`.
+ */
+export async function uploadImageToBlob(buffer: Buffer): Promise<string> {
+  const filename = `generated/${uuidv4()}.png`;
+  const blob = await put(filename, buffer, {
+    access: 'public',
+    contentType: 'image/png',
+  });
+  return blob.url;
 }
 
-export async function deleteImageFromDisk(imagePath: string): Promise<void> {
-  const fullPath = path.join(process.cwd(), 'public', imagePath);
-  if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+/**
+ * Deletes an image from Vercel Blob by its URL.
+ * Silently ignores errors so a missing blob never breaks the delete flow.
+ */
+export async function deleteImageFromBlob(imageUrl: string): Promise<void> {
+  try {
+    await del(imageUrl);
+  } catch (err) {
+    console.warn('[deleteImageFromBlob] Could not delete blob:', imageUrl, err);
+  }
 }

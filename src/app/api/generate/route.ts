@@ -4,7 +4,7 @@ import {
   buildFinalPrompt,
   generateWithPollinations,
   generateWithGemini,
-  saveImageToDisk,
+  uploadImageToBlob,
 } from '@/lib/imageApi';
 
 export const runtime = 'nodejs';
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const imagePath = await saveImageToDisk(buffer);
+    const imagePath = await uploadImageToBlob(buffer);
     const generation = await prisma.generation.create({
       data: {
         sessionId,

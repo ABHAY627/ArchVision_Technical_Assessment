@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { deleteImageFromDisk } from '@/lib/imageApi';
+import { deleteImageFromBlob } from '@/lib/imageApi';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   const sessionId = req.cookies.get('archvision_session')?.value;
   if (!sessionId) {
@@ -24,7 +24,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  await deleteImageFromDisk(generation.imagePath);
+  await deleteImageFromBlob(generation.imagePath);
   await prisma.generation.delete({ where: { id } });
 
   return NextResponse.json({ success: true });
