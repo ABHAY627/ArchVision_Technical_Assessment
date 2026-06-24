@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Generation {
+  id        String   @id @default(cuid())
+  sessionId String
+  prompt    String
+  styles    String[]
+  imagePath String
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+}
