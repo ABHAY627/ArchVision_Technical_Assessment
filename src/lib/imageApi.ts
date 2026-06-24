@@ -57,7 +57,7 @@ export async function generateWithGemini(finalPrompt: string): Promise<Buffer> {
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +68,11 @@ export async function generateWithGemini(finalPrompt: string): Promise<Buffer> {
         }),
       }
     );
-    if (!res.ok) throw new Error('api_error');
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('Gemini API Error:', res.status, text);
+      throw new Error('api_error');
+    }
     const data = await res.json();
     const part = data?.candidates?.[0]?.content?.parts?.find(
       (p: any) => p.inlineData?.mimeType?.startsWith('image/')
