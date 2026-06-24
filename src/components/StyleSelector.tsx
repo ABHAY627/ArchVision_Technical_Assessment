@@ -24,23 +24,26 @@ export default function StyleSelector({ selected, onChange }: Props) {
 
   return (
     <div>
-      <p className="text-xs text-muted uppercase tracking-widest mb-3 font-medium">
+      <p className="text-xs text-muted uppercase tracking-widest mb-3 font-semibold">
         Style Presets
       </p>
-      <div className="flex flex-wrap gap-2">
-        {STYLES.map((style) => (
-          <button
-            key={style}
-            onClick={() => toggle(style)}
-            className={`px-4 py-1.5 text-[13px] font-medium rounded-full border transition-all duration-200 ${
-              selected.includes(style)
-                ? 'border-terracotta bg-terracotta text-white shadow-sm shadow-terracotta/20 scale-[1.02]'
-                : 'border-border/80 bg-white text-muted hover:border-charcoal/30 hover:text-charcoal hover:bg-gray-50'
-            }`}
-          >
-            {style}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-2.5">
+        {STYLES.map((style) => {
+          const isSelected = selected.includes(style);
+          return (
+            <button
+              key={style}
+              onClick={() => toggle(style)}
+              className={`px-4 py-2 text-[13px] font-medium rounded-full border transition-all duration-300 ${
+                isSelected
+                  ? 'border-terracotta bg-terracotta text-white shadow-md shadow-terracotta/20 scale-[1.03] hover:brightness-105'
+                  : 'border-border bg-white text-muted hover:border-charcoal/40 hover:text-charcoal hover:bg-cream/20'
+              }`}
+            >
+              {style}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

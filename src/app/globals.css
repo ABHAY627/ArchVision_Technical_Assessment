@@ -2,10 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --cream: 234 231 224;
+  --charcoal: 42 41 40;
+  --terracotta: 217 119 87;
+  --terracotta-dark: 194 98 67;
+  --muted: 115 111 106;
+  --border: 210 206 198;
+  --white: 246 244 239;
+  --surface: 255 255 255;
+}
+
+.dark {
+  --cream: 26 26 30;
+  --charcoal: 232 230 225;
+  --terracotta: 224 138 109;
+  --terracotta-dark: 217 119 87;
+  --muted: 155 150 144;
+  --border: 46 46 51;
+  --white: 34 34 38;
+  --surface: 30 30 34;
+}
+
 @layer base {
   body {
     @apply bg-cream text-charcoal font-sans;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   h1, h2, h3 {
     @apply font-serif;
@@ -14,16 +37,49 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-terracotta text-white px-6 py-3 text-sm font-medium tracking-wide
-           rounded-xl shadow-md hover:shadow-lg hover:-translate-y-[1px]
-           hover:bg-terracotta-dark transition-all duration-200 ease-out
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md;
+    @apply bg-terracotta text-white px-6 py-3.5 text-sm font-semibold tracking-wide
+           rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-[2px]
+           hover:bg-terracotta-dark transition-all duration-300 ease-out
+           disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg;
   }
   .btn-secondary {
     @apply border border-border text-charcoal px-6 py-3 text-sm font-medium
            rounded-xl tracking-wide hover:bg-white hover:border-charcoal/30 transition-all duration-200 ease-out;
   }
   .card {
-    @apply bg-white border border-border/80 shadow-md rounded-2xl;
+    @apply bg-white border border-border/80 shadow-claude rounded-2xl overflow-hidden transition-all duration-300;
+  }
+  .card:hover {
+    @apply shadow-claude-hover;
+  }
+  .glass {
+    @apply bg-cream/80 backdrop-blur-xl border-b border-border/40;
   }
 }
+
+/* Shimmer effect for loading */
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--border)) 25%,
+    rgb(var(--cream)) 50%,
+    rgb(var(--border)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Stagger children animations */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.07s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.14s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.21s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.28s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.42s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.49s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.56s; }

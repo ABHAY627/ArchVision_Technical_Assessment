@@ -39,8 +39,8 @@ export async function generateWithPollinations(finalPrompt: string): Promise<Buf
     const buffer = Buffer.from(await res.arrayBuffer());
     if (buffer.length < 1000) throw new Error('api_error');
     return buffer;
-  } catch (err: any) {
-    if (err.name === 'AbortError') throw new Error('timeout');
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') throw new Error('timeout');
     throw err;
   } finally {
     clearTimeout(timeout);
@@ -74,13 +74,14 @@ export async function generateWithGemini(finalPrompt: string): Promise<Buffer> {
       throw new Error('api_error');
     }
     const data = await res.json();
-    const part = data?.candidates?.[0]?.content?.parts?.find(
-      (p: any) => p.inlineData?.mimeType?.startsWith('image/')
+    const parts = data?.candidates?.[0]?.content?.parts as Array<{ inlineData?: { mimeType?: string; data?: string } }> | undefined;
+    const part = parts?.find(
+      (p) => p.inlineData?.mimeType?.startsWith('image/')
     );
     if (!part?.inlineData?.data) throw new Error('api_error');
     return Buffer.from(part.inlineData.data, 'base64');
-  } catch (err: any) {
-    if (err.name === 'AbortError') throw new Error('timeout');
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') throw new Error('timeout');
     throw err;
   } finally {
     clearTimeout(timeout);

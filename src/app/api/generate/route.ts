@@ -44,16 +44,18 @@ export async function POST(req: NextRequest) {
       if (provider === 'gemini') {
         try {
           buffer = await generateWithGemini(finalPrompt);
-        } catch (geminiErr: any) {
-          console.warn('[/api/generate] Gemini failed, falling back to Pollinations:', geminiErr.message);
+        } catch (geminiErr: unknown) {
+          const msg = geminiErr instanceof Error ? geminiErr.message : String(geminiErr);
+          console.warn('[/api/generate] Gemini failed, falling back to Pollinations:', msg);
           buffer = await generateWithPollinations(finalPrompt);
         }
       } else {
         buffer = await generateWithPollinations(finalPrompt);
       }
-    } catch (err: any) {
-      const errorType = ['timeout', 'invalid_prompt', 'api_error'].includes(err.message)
-        ? err.message
+    } catch (err: unknown) {
+      const errMessage = err instanceof Error ? err.message : String(err);
+      const errorType = ['timeout', 'invalid_prompt', 'api_error'].includes(errMessage)
+        ? errMessage
         : 'api_error';
       return NextResponse.json(
         { error: errorType, message: ERROR_MESSAGES[errorType] },
